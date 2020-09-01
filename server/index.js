@@ -1,18 +1,58 @@
 const express = require("express")
-//initialize app
-//require morgan|volleyball, path packages
-//require db from /db
+const db = require('./db/index');
+const path = require('path')
+const app = express()
 
-//use morgan|volleyball
-//use express.json()
-//use express.static() MAKE SURE THE PATH TO YOUR PUBLIC FOLDER IS RIGHT!
+app.use(express.static(path.join(__dirname, 'public')));
 
-//require in your routes and use them on your api path
 
-//404 handler
+app.get('/api/games', async (req, res, next)=> {
+    try {
+      res.send(await db.models.Games.findAll());
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+  app.get('/api/games/:gamesId', async (req, res, next) => {
+    try {
+      const game = await db.models.Games.findByPk(req.params.gamesId);
+      res.json(game);
+    } catch (err) {
+      next(err);
+    }
+  });
+  
+  app.get('/api/developers', async (req, res, next)=> {
+    try {
+      res.send(await db.models.Developers.findAll());
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
+  app.get('/api/platforms', async (req, res, next)=> {
+    try {
+      res.send(await db.models.Platforms.findAll());
+    }
+    catch(ex){
+      next(ex);
+    }
+  });
 
-//500 handler
-
-//set PORT
-
-//listen
+  app.use((err, req, res, next)=> {
+    res.status(500).send({ error: err.message });
+  });
+  
+  const init = async()=> {
+    try {
+      await db.syncAndSeed();
+      const port = process.env.PORT || 2233;
+      app.listen(port, ()=> console.log(`listening on port ${port}`));
+    }
+    catch(ex){
+      console.log(ex);
+    }
+  };
+  
+  init();
