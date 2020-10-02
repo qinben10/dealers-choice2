@@ -39,6 +39,16 @@ app.get('/api/games', async (req, res, next)=> {
       next(ex);
     }
   });
+  app.post('/api/games', async(req, res, next)=>{
+    try{
+      const game = await db.models.Games.create(req.body)
+      res.status(201).send(game)
+    }
+    catch(ex){
+      next(ex)
+    }
+  })
+
 
   app.use((err, req, res, next)=> {
     res.status(500).send({ error: err.message });
